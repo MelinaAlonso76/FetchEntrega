@@ -18,7 +18,6 @@ const cargarVehiculos = () => {
 function ingresarVehiculo(vehiculo){
   let fila = document.createElement('tr')
   let tbody = document.querySelector('#garage')
-
   fila.innerHTML += `
   <td>${vehiculo.propietario}</td>
   <td>${vehiculo.patente}</td>
@@ -31,13 +30,38 @@ function ingresarVehiculo(vehiculo){
   tbody.appendChild(fila)
 }
 
+function pagar(info){
+  let tiempoEstacionado = new Date() - new Date(info[2].dataset.time)
+  tiempoEstacionado = convertirTiempo(tiempoEstacionado)
+  let estacionado = tiempoEstacionado.split(':')
+  let horas = parseInt(estacionado[0]*60)
+  let minutos = parseInt(estacionado[1])
+  let segundos = parseInt(estacionado[2]/60)
+  let minutosTotales = parseInt(horas+minutos+segundos)
+  let valorMinuto = 15
+  let total = parseInt(minutosTotales*valorMinuto)
+  if(total===0){
+    total = 150;
+  }else{
+    total = 100+(minutosTotales*valorMinuto)
+  }
+  return total
+}
+
 function checkOut(info){
   let tiempoEstacionado = new Date() - new Date(info[2].dataset.time)
   tiempoEstacionado = convertirTiempo(tiempoEstacionado)
 
+  const propietario = info[0].textContent
   const patente = info[1].textContent
 
-  const mensaje = `El vehiculo con patente ${patente} permanecio ${tiempoEstacionado} estacionado. ¿desea retirarse?`
+  const mensaje = `
+                  Propietario: ${propietario}
+                  Patente: ${patente}
+                  Tiempo: ${tiempoEstacionado}
+                  ----------------------------
+                  Total:$${pagar(info)}
+                  `
 
   const garage = obtenerGarage().filter(vehiculo => vehiculo.patente !== patente)
   localStorage.setItem('garage',JSON.stringify(garage))
